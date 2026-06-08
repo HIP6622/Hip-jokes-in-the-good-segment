@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>בדיחות</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@300;400;500;600;700;800&family=Noto+Serif+Hebrew:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Crect width='24' height='24' rx='6' fill='%231a1a2e'/%3E%3Cpath d='M4 11a9 9 0 0 1 9 9'/%3E%3Cpath d='M4 4a16 16 0 0 1 16 16'/%3E%3Ccircle cx='5' cy='19' r='1' fill='white' stroke='none'/%3E%3C/svg%3E">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-anchor: none; }
+
+:root {
+  --bg: #f2efe9;
+  --card-bg: #ffffff;
+  --header-bg: #0f0e0e;
+  --text: #161616;
+  --muted: #8a8a8a;
+  --border: #e4dfd8;
+  --channel-color: #1848b0;
+  --accent: #1848b0;
+  --accent-soft: #e6edff;
+  --signature-bg: #f7f5f1;
+  --action-hover: #f0f0f0;
+  --shadow-card: 0 1px 2px rgba(0,0,0,.04), 0 3px 12px rgba(0,0,0,.05);
+  --shadow-hover: 0 6px 24px rgba(0,0,0,.10);
+  --radius: 14px;
+  --font-body: 'Noto Sans Hebrew', sans-serif;
+  --font-display: 'Noto Serif Hebrew', serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  min-height: 100vh;
+  color: var(--text);
+  /* subtle paper texture */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.018'/%3E%3C/svg%3E");
+}
+
+/* ── HEADER ── */
+#header {
+  background: var(--header-bg);
+  color: #fff;
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 0 rgba(255,255,255,.06), 0 4px 24px rgba(0,0,0,.35);
+}
+#header-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -.3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#header-title svg { opacity: .7; }
+#header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#status-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 20px;
+  padding: 4px 12px 4px 10px;
+}
+#status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #4caf50;
+  flex-shrink: 0;
+  transition: background .3s;
+}
+#status-dot.pulse { animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(76,175,80,.4); }
+  50% { box-shadow: 0 0 0 4px rgba(76,175,80,0); }
+}
+#status-text { font-size: 12px; opacity: .7; font-weight: 400; }
+
+/* ── FILTER BAR ── */
+#filter-bar {
+  background: rgba(255,255,255,.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  position: sticky;
+  top: 56px;
+  z-index: 90;
+}
+#filter-bar-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  margin-left: 4px;
+}
+.filter-chip {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1;
+}
+.filter-chip:hover { background: #f5f5f5; border-color: #ccc; }
+.filter-chip.active {
+  background: var(--header-bg);
+  color: #fff;
+  border-color: var(--header-bg);
+}
+
+/* ── FEED ── */
+#feed {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 20px 14px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-anchor: none;
+}
+
+/* ── DATE DIVIDER ── */
+.date-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0 4px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+}
+.date-divider::before,.date-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── MESSAGE CARD ── */
+.msg-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 14px 16px 10px;
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+  transition: box-shadow .2s, transform .15s;
+  position: relative;
+  box-shadow: var(--shadow-card);
+}
+.msg-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+}
+
+/* Avatar */
+.avatar-wrap { flex-shrink: 0; position: relative; }
+.avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  display: block;
+}
+.avatar-placeholder {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a56c4, #0d3a8f);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: var(--font-display);
+}
+
+/* Body */
+.msg-body { flex: 1; min-width: 0; }
+.msg-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+.msg-channel {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--channel-color);
+  letter-spacing: -.1px;
+}
+.msg-time {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 400;
+  margin-right: auto;
+  white-space: nowrap;
+}
+
+/* Main text */
+.msg-text {
+  font-size: 15.5px;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-weight: 400;
+  letter-spacing: -.1px;
+}
+
+/* Signature detection — last line(s) if repeated */
+.msg-signature {
+  display: block;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 400;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* Image */
+.msg-image {
+  margin-top: 10px;
+  border-radius: 10px;
+  max-width: 100%;
+  max-height: 340px;
+  object-fit: cover;
+  display: block;
+  cursor: zoom-in;
+  border: 1px solid var(--border);
+  transition: opacity .2s;
+}
+.msg-image:hover { opacity: .93; }
+
+/* File */
+.msg-file {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--signature-bg);
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 13px;
+  text-decoration: none;
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-weight: 500;
+  transition: background .15s;
+}
+.msg-file:hover { background: #eee; }
+
+/* Drive video embed */
+.msg-drive-video {
+  margin-top: 10px;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #000;
+  display: block;
+  overflow: hidden;
+  position: relative;
+}
+.msg-drive-video iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+.msg-drive-open {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 7px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity .2s;
+  white-space: nowrap;
+  z-index: 2;
+}
+.msg-drive-video:hover .msg-drive-open { opacity: 1; }
+
+/* Telegram link */
+.msg-tg-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color .15s;
+}
+.msg-tg-link:hover { color: var(--accent); }
+
+/* ── ACTION BUTTONS ── */
+.msg-actions {
+  display: flex;
+  gap: 3px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.action-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--signature-bg);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.action-btn:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: #b8cdff;
+}
+.action-btn.copied {
+  background: #e6f4ea;
+  color: #2a7d35;
+  border-color: #9dcba2;
+}
+/* Tooltip */
+.action-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 7px);
+  right: 50%;
+  transform: translateX(50%);
+  background: #111;
+  color: #fff;
+  font-size: 11px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 4px 9px;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s;
+  z-index: 10;
+}
+.action-btn:hover::after { opacity: 1; }
+
+/* ── LOADING ── */
+#loading {
+  text-align: center;
+  padding: 70px 20px;
+  color: var(--muted);
+  font-size: 15px;
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid #e0e0e0;
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#empty {
+  display: none;
+  text-align: center;
+  padding: 70px 20px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+/* ── NEW MESSAGES BANNER ── */
+#new-msg-banner {
+  display: none;
+  position: fixed;
+  top: 108px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--header-bg);
+  color: #fff;
+  padding: 9px 20px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 80;
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+  white-space: nowrap;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  animation: slideDown .3s ease;
+  letter-spacing: -.1px;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+#new-msg-banner.visible { display: flex; }
+#new-msg-banner:hover { background: #2a2a2a; }
+
+/* ── SCROLL TO BOTTOM ── */
+#scroll-bottom-btn {
+  display: none;
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 9px 18px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  z-index: 80;
+  box-shadow: 0 4px 20px rgba(0,0,0,.12);
+  white-space: nowrap;
+  align-items: center;
+  gap: 7px;
+  transition: all .15s;
+}
+#scroll-bottom-btn.visible { display: flex; }
+#scroll-bottom-btn:hover {
+  background: var(--header-bg);
+  color: #fff;
+  border-color: var(--header-bg);
+}
+
+/* ── LIGHTBOX ── */
+#lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.9);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  backdrop-filter: blur(6px);
+}
+#lightbox.open { display: flex; }
+#lightbox img {
+  max-width: 92vw;
+  max-height: 92vh;
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+
+/* ── TOAST ── */
+#toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: #111;
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  transition: all .25s;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 200;
+}
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div id="header-title">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1" fill="currentColor"/>
+    </svg>
+    פיד חדשות
+  </div>
+  <div id="header-right">
+    <div id="status-pill">
+      <span id="status-dot" class="pulse"></span>
+      <span id="status-text">טוען...</span>
+    </div>
+  </div>
+</div>
+
+<div id="filter-bar">
+  <span id="filter-bar-label">ערוץ</span>
+  <button class="filter-chip active" data-channel="all" onclick="filterChannel('all', this)">הכל</button>
+</div>
+
+<div id="feed">
+  <div id="loading">
+    <div class="spinner"></div>
+    טוען הודעות...
+  </div>
+  <div id="empty">אין הודעות להצגה</div>
+</div>
+
+<div id="new-msg-banner" onclick="scrollToTop()">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+  הודעות חדשות
+</div>
+
+<button id="scroll-bottom-btn" onclick="scrollToBottom()">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  גלול למטה
+</button>
+
+<div id="lightbox" onclick="closeLightbox()">
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<div id="toast"></div>
+
+<script>
+window.google = window.google || {};
+window.google.visualization = window.google.visualization || {};
+window.google.visualization.Query = window.google.visualization.Query || {
+  setResponse: function(json) { if (window._cb) window._cb(json); }
+};
+
+const SPREADSHEET_ID = '1byK8QAJrWWVFg89E1wlbdmWVIUO8lEvyv36dzL2rWQk';
+const POLL_INTERVAL = 30000;
+const MESSAGES_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=Messages&tqx=responseHandler:_cb`;
+const PROFILES_URL  = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=Profiles&tqx=responseHandler:_cb`;
+
+let profiles = {};
+let allMessages = [];
+let activeChannel = 'all';
+let firstLoad = true;
+let lastMessageCount = 0;
+let isUserScrolling = false;
+let scrollTimer = null;
+
+// Detect if user is scrolled up
+function checkScroll() {
+  const scrolledUp = window.scrollY < document.body.scrollHeight - window.innerHeight - 80;
+  const btn = document.getElementById('scroll-bottom-btn');
+  if (scrolledUp) {
+    btn.classList.add('visible');
+    isUserScrolling = true;
+  } else {
+    btn.classList.remove('visible');
+    isUserScrolling = false;
+  }
+}
+
+// ── Profiles ──
+function loadProfiles() {
+  return new Promise(resolve => {
+    const old = document.getElementById('_gviz_profiles');
+    if (old) old.remove();
+    window._cb = function(json) {
+      try {
+        (json.table.rows || []).forEach(row => {
+          const name = row.c[0]?.v?.trim();
+          const url  = row.c[1]?.v?.trim();
+          if (name && url) profiles[name] = url;
+        });
+      } catch(e) {}
+      resolve();
+    };
+    const s = document.createElement('script');
+    s.id = '_gviz_profiles';
+    s.src = PROFILES_URL + '&_=' + Date.now();
+    document.head.appendChild(s);
+  });
+}
+
+// ── Fetch ──
+function fetchMessages() {
+  const old = document.getElementById('_gviz_messages');
+  if (old) old.remove();
+  window._cb = function(json) {
+    try {
+      const rows = json.table.rows || [];
+      const msgs = rows.map(row => ({
+        runTime:  row.c[0]?.v || '',
+        channel:  (row.c[1]?.v || '').trim(),
+        postTime: row.c[2]?.v || '',
+        text:     row.c[3]?.v || '',
+        imageUrl: row.c[4]?.v || '',
+        driveUrl: row.c[5]?.v || '',
+        tgUrl:    row.c[6]?.v || '',
+      })).filter(m => m.text || m.imageUrl || m.driveUrl);
+
+      const newCount = msgs.length;
+      const hadNew = newCount > lastMessageCount && !firstLoad;
+
+      allMessages = msgs;
+      updateFilterBar();
+
+      if (firstLoad) {
+        renderFeed(true);
+        firstLoad = false;
+        lastMessageCount = newCount;
+        setStatus('מחובר ✓', true);
+      } else if (hadNew) {
+        // Only show banner if user is scrolled up, else silently append
+        if (isUserScrolling) {
+          renderFeed(false, true); // silent update
+          showNewBanner(newCount - lastMessageCount);
+        } else {
+          renderFeed(false, false); // smooth bottom update
+        }
+        lastMessageCount = newCount;
+      }
+      setStatus('מחובר ✓', true);
+    } catch(e) {
+      setStatus('שגיאה בטעינה', false);
+    }
+  };
+  const s = document.createElement('script');
+  s.id = '_gviz_messages';
+  s.src = MESSAGES_URL + '&_=' + Date.now();
+  document.head.appendChild(s);
+}
+
+// ── Filter ──
+function updateFilterBar() {
+  const bar = document.getElementById('filter-bar');
+  const channels = [...new Set(allMessages.map(m => m.channel).filter(Boolean))];
+  const existing = new Set([...bar.querySelectorAll('.filter-chip')].map(b => b.dataset.channel));
+  channels.forEach(ch => {
+    if (existing.has(ch)) return;
+    const btn = document.createElement('button');
+    btn.className = 'filter-chip';
+    btn.dataset.channel = ch;
+    btn.textContent = ch;
+    btn.onclick = () => filterChannel(ch, btn);
+    bar.appendChild(btn);
+  });
+}
+
+function filterChannel(channel, btn) {
+  activeChannel = channel;
+  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderFeed(false);
+}
+
+// ── Signature detection (frequency-based) ──
+// channelSigs[channel] = Set of trailing line-sequences that appear in 3+ messages
+const channelSigs = {};
+
+function buildChannelSignatures() {
+  // Group messages by channel
+  const byChannel = {};
+  allMessages.forEach(m => {
+    if (!m.text || !m.channel) return;
+    if (!byChannel[m.channel]) byChannel[m.channel] = [];
+    byChannel[m.channel].push(m.text);
+  });
+
+  Object.entries(byChannel).forEach(([channel, texts]) => {
+    if (texts.length < 3) return;
+    // For each message, extract candidate trailing sequences (1..5 non-empty lines from end)
+    const candidateCounts = {};
+    texts.forEach(text => {
+      const lines = text.split('\n');
+      // collect trailing non-empty lines
+      const trailing = [];
+      for (let i = lines.length - 1; i >= 0; i--) {
+        const l = lines[i].trim();
+        if (l) trailing.unshift(l);
+        if (trailing.length >= 6) break;
+      }
+      // generate all suffix sequences of length 1..trailing.length
+      for (let len = 1; len <= trailing.length; len++) {
+        const seq = trailing.slice(trailing.length - len).join('\n');
+        candidateCounts[seq] = (candidateCounts[seq] || 0) + 1;
+      }
+    });
+
+    // Keep sequences that appear in ≥3 messages AND are at least 1 real line
+    const sigs = new Set();
+    Object.entries(candidateCounts).forEach(([seq, count]) => {
+      if (count >= 3) sigs.add(seq);
+    });
+    if (sigs.size) channelSigs[channel] = sigs;
+  });
+}
+
+function stripChannelSig(text, channel) {
+  if (!text) return text;
+  const sigs = channelSigs[channel];
+  if (!sigs || !sigs.size) return text;
+
+  const lines = text.split('\n');
+
+  // Try to match the longest known sig suffix
+  let bestCut = lines.length; // index where sig starts (exclusive of main)
+  sigs.forEach(sig => {
+    const sigLines = sig.split('\n');
+    // scan backwards through lines to find match
+    let li = lines.length - 1;
+    let si = sigLines.length - 1;
+    while (li >= 0 && si >= 0) {
+      if (lines[li].trim() === sigLines[si]) { li--; si--; }
+      else if (!lines[li].trim()) { li--; } // skip blank lines
+      else break;
+    }
+    if (si < 0) {
+      // full sig matched — record where main content ends
+      const cut = li + 1;
+      if (cut < bestCut) bestCut = cut;
+    }
+  });
+
+  if (bestCut < lines.length && bestCut > 0) {
+    return lines.slice(0, bestCut).join('\n').trimEnd();
+  }
+  return text;
+}
+
+function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+// ── Drive video embed ──
+function getDriveEmbedUrl(url) {
+  if (!url) return null;
+  // Formats:
+  // https://drive.google.com/file/d/FILE_ID/view
+  // https://drive.google.com/open?id=FILE_ID
+  // https://drive.google.com/uc?id=FILE_ID
+  let id = null;
+  const m1 = url.match(/\/file\/d\/([^/?#&]+)/);
+  if (m1) id = m1[1];
+  if (!id) {
+    const m2 = url.match(/[?&]id=([^&]+)/);
+    if (m2) id = m2[1];
+  }
+  return id ? `https://drive.google.com/file/d/${id}/preview` : null;
+}
+
+// ── Render (paginated, newest-last, loads more on scroll up) ──
+const PAGE_SIZE = 20;
+let renderedCount = 0;       // how many msgs currently in DOM
+let isLoadingMore = false;
+let videoObserver = null;
+
+function getFilteredMsgs() {
+  return activeChannel === 'all'
+    ? allMessages
+    : allMessages.filter(m => m.channel === activeChannel);
+}
+
+// Build a single card DOM element for message at position idx in msgs array
+function buildCard(msgs, idx) {
+  const m = msgs[idx];
+  const card = document.createElement('div');
+  card.className = 'msg-card';
+
+  const avatarUrl = profiles[m.channel];
+  let avatarHtml;
+  if (avatarUrl) {
+    avatarHtml = `<img class="avatar" src="${esc(avatarUrl)}" alt="${esc(m.channel)}"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="avatar-placeholder" style="display:none">${initials(m.channel)}</div>`;
+  } else {
+    avatarHtml = `<div class="avatar-placeholder">${initials(m.channel)}</div>`;
+  }
+
+  const mainText = stripChannelSig(m.text, m.channel);
+
+  let contentHtml = `
+    <div class="msg-header">
+      <span class="msg-channel">${esc(m.channel)}</span>
+      <span class="msg-time">${formatTime(m.postTime)}</span>
+    </div>`;
+
+  if (mainText) contentHtml += `<div class="msg-text">${esc(mainText)}</div>`;
+
+  if (m.imageUrl) {
+    contentHtml += `<img class="msg-image" src="${esc(m.imageUrl)}" alt="תמונה" loading="lazy" onclick="openLightbox(this.src)">`;
+  }
+
+  if (m.driveUrl) {
+    const embedUrl = getDriveEmbedUrl(m.driveUrl);
+    if (embedUrl) {
+      // Lazy: iframe src set later by IntersectionObserver
+      contentHtml += `<div class="msg-drive-video">
+        <iframe data-src="${esc(embedUrl)}" allowfullscreen allow="autoplay"></iframe>
+        <a class="msg-drive-open" href="${esc(m.driveUrl)}" target="_blank" rel="noopener">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+          פתח בדרייב
+        </a>
+      </div>`;
+    } else {
+      contentHtml += `<a class="msg-file" href="${esc(m.driveUrl)}" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        קובץ מצורף
+      </a>`;
+    }
+  }
+
+  const copyPageLinkBtn = `<button class="action-btn" onclick="copyPageLink(this)" data-tooltip="העתק קישור לפיד">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+  </button>`;
+
+  const openSourceBtn = m.tgUrl
+    ? `<button class="action-btn" onclick="openSource('${esc(m.tgUrl)}')" data-tooltip="פתח בטלגרם">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+      </button>`
+    : '';
+
+  const copyTextBtn = m.text
+    ? `<button class="action-btn copy-text-btn" data-idx="${idx}" data-tooltip="העתק טקסט">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </button>`
+    : '';
+
+  contentHtml += `<div class="msg-actions">${copyPageLinkBtn}${openSourceBtn}${copyTextBtn}</div>`;
+
+  card.innerHTML = `<div class="avatar-wrap">${avatarHtml}</div><div class="msg-body">${contentHtml}</div>`;
+
+  // Wire copy-text
+  const ctBtn = card.querySelector('.copy-text-btn');
+  if (ctBtn) {
+    ctBtn.addEventListener('click', function() {
+      copyText(this, msgs[parseInt(this.dataset.idx)]?.text || '');
+    });
+  }
+
+  return card;
+}
+
+function setupVideoObserver() {
+  if (videoObserver) videoObserver.disconnect();
+  videoObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const iframe = entry.target;
+        if (iframe.dataset.src && !iframe.src) {
+          iframe.src = iframe.dataset.src;
+        }
+        videoObserver.unobserve(iframe);
+      }
+    });
+  }, { rootMargin: '200px' });
+
+  document.querySelectorAll('iframe[data-src]').forEach(iframe => {
+    videoObserver.observe(iframe);
+  });
+}
+
+function renderFeed(scrollAfter = false, preserveScroll = false) {
+  const feed = document.getElementById('feed');
+  document.getElementById('loading').style.display = 'none';
+
+  const msgs = getFilteredMsgs();
+
+  if (!msgs.length) {
+    document.getElementById('empty').style.display = 'block';
+    feed.querySelectorAll('.msg-card, .date-divider').forEach(el => el.remove());
+    renderedCount = 0;
+    return;
+  }
+  document.getElementById('empty').style.display = 'none';
+  buildChannelSignatures();
+
+  // Full re-render (filter change / first load)
+  feed.querySelectorAll('.msg-card, .date-divider').forEach(el => el.remove());
+
+  // Show last PAGE_SIZE messages
+  renderedCount = Math.min(PAGE_SIZE, msgs.length);
+  const startIdx = msgs.length - renderedCount;
+
+  appendMsgsRange(feed, msgs, startIdx, msgs.length - 1, true);
+  setupVideoObserver();
+
+  if (scrollAfter) {
+    requestAnimationFrame(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
+  } else if (preserveScroll) {
+    // no-op, caller handles
+  }
+}
+
+// Prepend older messages when user scrolls to top
+function loadMoreMessages() {
+  if (isLoadingMore) return;
+  const msgs = getFilteredMsgs();
+  if (renderedCount >= msgs.length) return;
+
+  isLoadingMore = true;
+  const feed = document.getElementById('feed');
+
+  // Pin to the first visible card so we can restore position exactly
+  const anchor = feed.querySelector('.msg-card, .date-divider');
+  const anchorTop = anchor ? anchor.getBoundingClientRect().top : 0;
+
+  const toLoad = Math.min(PAGE_SIZE, msgs.length - renderedCount);
+  const endIdx = msgs.length - renderedCount - 1;
+  const startIdx = endIdx - toLoad + 1;
+
+  const frag = document.createDocumentFragment();
+  buildMsgsRange(msgs, startIdx, endIdx).forEach(n => frag.appendChild(n));
+
+  feed.insertBefore(frag, anchor);
+  renderedCount += toLoad;
+
+  // Restore scroll so anchor element stays exactly where it was
+  if (anchor) {
+    const newAnchorTop = anchor.getBoundingClientRect().top;
+    window.scrollBy({ top: newAnchorTop - anchorTop, behavior: 'instant' });
+  }
+
+  setupVideoObserver();
+  isLoadingMore = false;
+}
+
+// Returns array of nodes (date dividers + cards) for msgs[start..end] inclusive
+function buildMsgsRange(msgs, startIdx, endIdx) {
+  const nodes = [];
+  // Detect what date the node just after endIdx has (to avoid duplicate divider)
+  let prevDate = null;
+  if (endIdx + 1 < msgs.length) {
+    prevDate = getDateStr(msgs[endIdx + 1].postTime);
+  }
+
+  // Walk forward so dates appear in order
+  for (let i = startIdx; i <= endIdx; i++) {
+    const m = msgs[i];
+    const dateStr = getDateStr(m.postTime);
+    if (dateStr && dateStr !== prevDate) {
+      const div = document.createElement('div');
+      div.className = 'date-divider';
+      div.textContent = dateStr;
+      nodes.push(div);
+      prevDate = dateStr;
+    }
+    nodes.push(buildCard(msgs, i));
+  }
+  return nodes;
+}
+
+// Append nodes directly into feed (used for initial render)
+function appendMsgsRange(feed, msgs, startIdx, endIdx, clearDividers) {
+  const nodes = buildMsgsRange(msgs, startIdx, endIdx);
+  const frag = document.createDocumentFragment();
+  nodes.forEach(n => frag.appendChild(n));
+  feed.appendChild(frag);
+}
+
+// ── Scroll-up triggers load-more ──
+window.addEventListener('scroll', () => {
+  checkScroll();
+  if (window.scrollY < 300) loadMoreMessages();
+  if (window.scrollY < 100) document.getElementById('new-msg-banner').classList.remove('visible');
+}, { passive: true });
+
+
+// ── Actions ──
+function copyPageLink(btn) {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+    showToast('קישור הפיד הועתק');
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
+    }, 2000);
+  });
+}
+function openSource(url) { window.open(url, '_blank', 'noopener'); }
+function copyText(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+    showToast('הטקסט הועתק');
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+    }, 2000);
+  });
+}
+
+function showNewBanner(count) {
+  const banner = document.getElementById('new-msg-banner');
+  banner.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg> ${count} הודעות חדשות`;
+  banner.classList.add('visible');
+}
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('new-msg-banner').classList.remove('visible');
+}
+function scrollToBottom() {
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── Utilities ──
+function formatTime(raw) {
+  if (!raw) return '';
+  try {
+    if (typeof raw === 'string' && raw.startsWith('Date(')) {
+      const p = raw.slice(5,-1).split(',').map(Number);
+      const d = new Date(p[0],p[1],p[2],p[3]||0,p[4]||0);
+      return d.toLocaleString('he-IL', { hour:'2-digit', minute:'2-digit' });
+    }
+    if (typeof raw === 'string' && /^\d{2}\/\d{2}\/\d{4}/.test(raw)) {
+      return raw.split(' ')[1] || raw;
+    }
+    return new Date(raw).toLocaleString('he-IL', { hour:'2-digit', minute:'2-digit' });
+  } catch { return String(raw); }
+}
+
+function getDateStr(raw) {
+  if (!raw) return null;
+  try {
+    let d;
+    if (typeof raw === 'string' && raw.startsWith('Date(')) {
+      const p = raw.slice(5,-1).split(',').map(Number);
+      d = new Date(p[0],p[1],p[2]);
+    } else {
+      d = new Date(raw);
+    }
+    return d.toLocaleDateString('he-IL', { weekday:'long', day:'numeric', month:'long' });
+  } catch { return null; }
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escapeBT(s) {
+  return String(s||'').replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');
+}
+function initials(name) {
+  return name ? name.charAt(0).toUpperCase() : '?';
+}
+function setStatus(msg, ok) {
+  document.getElementById('status-text').textContent = msg;
+  const dot = document.getElementById('status-dot');
+  dot.style.background = ok ? '#4caf50' : '#e53935';
+  if (ok) dot.classList.add('pulse'); else dot.classList.remove('pulse');
+}
+
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+async function init() {
+  await loadProfiles();
+  fetchMessages();
+  setInterval(fetchMessages, POLL_INTERVAL);
+}
+init();
+</script>
+</body>
+</html>
