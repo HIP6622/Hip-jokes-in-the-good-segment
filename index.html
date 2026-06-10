@@ -874,10 +874,36 @@ function buildCard(msgs, idx) {
       </button>`
     : '';
 
-const downloadUrl = m.driveUrl ? getDriveDownloadUrl(m.driveUrl) : m.imageUrl || '';
-  const downloadBtn = (m.driveUrl || m.imageUrl)
-    ? `<a class="action-btn" href="${esc(downloadUrl)}" download target="_blank" rel="noopener" data-tooltip="הורד קובץ">
+function resolveImageDownloadUrl(url) {
+    if (!url) return null;
+    // אופן 1: drive.google.com/file/d/ID/view
+    const m1 = url.match(/\/file\/d\/([^/?#&]+)/);
+    if (m1) return `https://drive.google.com/uc?export=download&id=${m1[1]}`;
+    // אופן 2: drive.google.com/uc?id=ID
+    const m2 = url.match(/[?&]id=([^&]+)/);
+    if (m2) return `https://drive.google.com/uc?export=download&id=${m2[1]}`;
+    // אופן 3: קישור רגיל (lh3.googleusercontent וכו')
+    return url;
+  }
+  function resolveImageViewUrl(url) {
+    if (!url) return null;
+    const m1 = url.match(/\/file\/d\/([^/?#&]+)/);
+    if (m1) return `https://drive.google.com/file/d/${m1[1]}/view`;
+    const m2 = url.match(/[?&]id=([^&]+)/);
+    if (m2) return `https://drive.google.com/file/d/${m2[1]}/view`;
+    return url;
+  }
+
+  const imageUrl = m.driveUrl || m.imageUrl || '';
+  const downloadBtn = imageUrl
+    ? `<a class="action-btn" href="${esc(resolveImageDownloadUrl(imageUrl))}" download target="_blank" rel="noopener" data-tooltip="הורד קובץ">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </a>`
+    : '';
+
+  const viewImageBtn = m.imageUrl
+    ? `<a class="action-btn" href="${esc(resolveImageViewUrl(m.imageUrl))}" target="_blank" rel="noopener" data-tooltip="לצפייה בתמונה במלואה">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
       </a>`
     : '';
 
@@ -887,7 +913,7 @@ const downloadUrl = m.driveUrl ? getDriveDownloadUrl(m.driveUrl) : m.imageUrl ||
       </button>`
     : '';
 
-  contentHtml += `<div class="msg-actions">${copyPageLinkBtn}${openSourceBtn}${downloadBtn}${copyTextBtn}</div>`;
+contentHtml += `<div class="msg-actions">${copyPageLinkBtn}${openSourceBtn}${downloadBtn}${viewImageBtn}${copyTextBtn}</div>`;
   
   card.innerHTML = `<div class="avatar-wrap">${avatarHtml}</div><div class="msg-body">${contentHtml}</div>`;
 
