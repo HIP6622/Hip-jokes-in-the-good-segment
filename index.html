@@ -791,6 +791,18 @@ function getDriveEmbedUrl(url) {
   return id ? `https://drive.google.com/file/d/${id}/preview` : null;
 }
 
+function getDriveDownloadUrl(url) {
+  if (!url) return url;
+  let id = null;
+  const m1 = url.match(/\/file\/d\/([^/?#&]+)/);
+  if (m1) id = m1[1];
+  if (!id) {
+    const m2 = url.match(/[?&]id=([^&]+)/);
+    if (m2) id = m2[1];
+  }
+  return id ? `https://drive.google.com/uc?export=download&id=${id}` : url;
+}
+
 // ── Render (paginated, newest-last, loads more on scroll up) ──
 const PAGE_SIZE = 20;
 let renderedCount = 0;       // how many msgs currently in DOM
@@ -862,14 +874,20 @@ function buildCard(msgs, idx) {
       </button>`
     : '';
 
+  const downloadBtn = m.driveUrl
+    ? `<a class="action-btn" href="${esc(getDriveDownloadUrl(m.driveUrl))}" download target="_blank" rel="noopener" data-tooltip="הורד קובץ">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </a>`
+    : '';
+
   const copyTextBtn = m.text
     ? `<button class="action-btn copy-text-btn" data-idx="${idx}" data-tooltip="העתק טקסט">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       </button>`
     : '';
 
-  contentHtml += `<div class="msg-actions">${copyPageLinkBtn}${openSourceBtn}${copyTextBtn}</div>`;
-
+  contentHtml += `<div class="msg-actions">${copyPageLinkBtn}${openSourceBtn}${downloadBtn}${copyTextBtn}</div>`;
+  
   card.innerHTML = `<div class="avatar-wrap">${avatarHtml}</div><div class="msg-body">${contentHtml}</div>`;
 
   // Wire copy-text
